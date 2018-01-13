@@ -127,5 +127,9 @@ function processData(theFileString) {
 
 }
 
-// TODO: add support for entering filename from command line.
-getFileContent("20180110_1710_solitary-voice_samples.csv", processData);
+// TODO: Remove this debug console.log after validation.
+process.argv.forEach(function (val, index, array) {
+    console.log(index + ": " + val);
+});
+
+getFileContent(process.argv[2], processData);
