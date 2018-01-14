@@ -1,64 +1,66 @@
 // A simple logic analyzer parser to extract timing information for statistical comparison.
 
 let fs = require("fs");
+let readline = require("readline");
+let stream = require("stream");
 
-// TODO: Read file in and parse it one line at a time (memory savings).
-function getFileContent(srcPath, callback) {
-    fs.readFile(srcPath, "utf8", function (err, data) {
-        if (err) throw err;
-        callback(data);
+let instream = fs.createReadStream(process.argv[2]);
+let outstream = new stream();
+let rl = readline.createInterface(instream, outstream);
+
+let isFirstLine = true; // indicates first line of the file being read
+let myArrays = [];
+let mySignalNames = [];
+let cols = 0;
+// lineNumber is the line number of the incoming data file and doesn't
+// count the header line.
+let lineNumber = 0;
+
+// TODO: Check for existence of file.
+// TODO: Add "usage" info if invoked with no parameters.
+
+// TODO: Add descriptive comments for this function.
+rl.on("line", function(line) {
+    // line == the first line, and the next line, etc.
+    //console.log("line: ", line);
+    if (isFirstLine == true) {
+        let firstLine = line.split(",");
+        console.log(firstLine);
+        for (key in firstLine) {
+            console.log(firstLine[key]);
         }
-    );
-}
+        // cols contains the number of time/value pairs in the source file.
+        cols = firstLine.length / 2;
+        console.log("cols =", cols);
+        
+        // Assign signal names.
+        // Unique signal names are in 1, 3, 5... of firstLine.
+        for (let i = 0; i < cols; i += 1) {
+            mySignalNames[i] = firstLine[(i * 2) + 1];
+        }
 
-function processData(theFileString) {
-    let parsedLines = theFileString.split("\n");
-    //console.log(theFileString);
-    //console.log(parsedLines);
+        //console.log (mySignalNames);
 
-    // At this point, parsedLines[] contains the whole file, one line per entry.
-    // Next we want to split each line into column pairs and store them separately.
-    // First we parse the first line by ',' to get the total number of columns, and
-    // use these as keys/labels for each of the variable pairs.
-    let firstLine = parsedLines[0].split(",");
-    console.log(parsedLines[0]);
-    console.log(firstLine);
-    for (key in firstLine) {
-        console.log(firstLine[key]);
-    }
-    // cols contains the number of time/value pairs in the source file.
-    let cols = firstLine.length / 2;
-    console.log("cols =", cols);
+        // myArrays is an array of (4) arrays, where (4) can be replaced with 'cols'.
+        // myArrays[0] is an array of 2d objects {Time [s], Value [voltage or 0/1]}
+        for (let i = 0; i < cols; i += 1) {
+            myArrays[i] = [];
+        }
+        isFirstLine = false;
+    } else {
+        // The next step is to run through all of the file lines and for each one,
+        // parse their contents into the respective {time, value} pairs for each
+        // array.
+        // We'll use 'i' as the line number for parsedLines and 'j' as the column
+        // number in units of unique signals (same sense as 'cols' above).
+        // Note that we start at the second line number because the first line
+        // number contains the header texts.
 
-    let mySignalNames = [];
-    // Unique signal names are in 1, 3, 5... of firstLine.
-    for (let i = 0; i < cols; i += 1) {
-        mySignalNames[i] = firstLine[(i * 2) + 1];
-    }
-
-    console.log (mySignalNames);
-
-    // myArrays is an array of (4) arrays, where (4) can be replaced with 'cols'.
-    // myArrays[0] is an array of 2d objects {Time [s], Value [voltage or 0/1]}
-    let myArrays = [];
-    for (let i = 0; i < cols; i += 1) {
-        myArrays[i] = [];
-    }
-    // The next step is to run through all of the parsedLines[] and for each one,
-    // parse their contents into the respective {time, value} pairs for each
-    // array.
-    // We'll use 'i' as the line number for parsedLines and 'j' as the column
-    // number in units of unique signals (same sense as 'cols' above).
-    // Note that we start at the second line number because the first line
-    // number contains the header texts.
-
-    for (let i = 1; i < parsedLines.length; i += 1) {
-        // break the line into column units
-        let localString = parsedLines[i].split(",");
+        let localString = line.split(",");
         // assign column units into {time, value} object pairs and assign them
         // to each array in myArrays[].
 
-        //console.log (localString[0], localString[1]);
+        //console.log ("split line is: ", localString[0], localString[1]);
 
         for (let j = 0; j < cols; j += 1) {
             // localString[0] is the 'time' portion of the first object in myArray[0]
@@ -66,17 +68,26 @@ function processData(theFileString) {
             // localString[2] is the 'time' portion of the first object in myArray[1]
             // localString[3] is the 'value' portion of the first object in myArray[1]
             // etc.
-            myArrays[j][i-1] = [Number(localString[(j * 2) + 0]), Number(localString[(j * 2) + 1])];
+            myArrays[j][lineNumber] = [Number(localString[(j * 2) + 0]), Number(localString[(j * 2) + 1])];
         }
+    lineNumber += 1;
     }
+});
 
+// On file close, we process the array and perform the work of the program.
+rl.on("close", function() {
     //console.log (myArrays);
+    //for (let i = 0; i < cols; i += 1) {
+    //    for (let j = 0; j < 5; j += 1) {
+    //        console.log (myArrays[i][j]);
+    //    }
+    //}
+    
     // Parse and print the arrays organized by signal
     for (let j = 0; j < cols; j += 1) {
         //console.log("signal ", mySignalNames[j]);
         //console.log ("Time, Value");
-        // TODO: change parsedLines.length to array length
-        for (let i = 0; i < (parsedLines.length - 1); i += 1) {
+        for (let i = 0; i < myArrays[j].length; i += 1) {
             //console.log (myArrays[j][i][0], ", ", myArrays[j][i][1]);
         }
        // console.log("\n");
@@ -121,15 +132,18 @@ function processData(theFileString) {
         }
     }
 
-    for (i = 0; i < outputArray.length; i += 1) {
-        console.log(outputArray[i]);
+    let mySignalString = "";
+    for (let i = 0; i < cols; i += 1) {
+        mySignalString += mySignalNames[i] + ((i < (cols - 1)) ? ", ":"");
     }
-
-}
-
-// TODO: Remove this debug console.log after validation.
-process.argv.forEach(function (val, index, array) {
-    console.log(index + ": " + val);
+    console.log(mySignalString);
+    let mySignalLine = "";
+    for (let i = 0; i < outputArray.length; i += 1) {
+        mySignalLine = "";
+        for (let j = 0; j < outputArray[0].length; j += 1) {
+            mySignalLine += outputArray[i][j] + ((j < (outputArray[0].length - 1)) ? ", ":"");
+        }
+        console.log(mySignalLine);
+        //console.log(outputArray[i]);
+    }
 });
-
-getFileContent(process.argv[2], processData);
