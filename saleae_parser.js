@@ -1,4 +1,5 @@
 // A simple logic analyzer parser to extract timing information for statistical comparison.
+// TODO: Replace 'for' statements over arrays with 'forEach' methods
 
 let fs = require("fs");
 let readline = require("readline");
@@ -32,7 +33,7 @@ rl.on("line", function(line) {
         // cols contains the number of time/value pairs in the source file.
         cols = firstLine.length / 2;
         console.log("cols =", cols);
-        
+
         // Assign signal names.
         // Unique signal names are in 1, 3, 5... of firstLine.
         for (let i = 0; i < cols; i += 1) {
@@ -82,7 +83,7 @@ rl.on("close", function() {
     //        console.log (myArrays[i][j]);
     //    }
     //}
-    
+
     // Parse and print the arrays organized by signal
     for (let j = 0; j < cols; j += 1) {
         //console.log("signal ", mySignalNames[j]);
