@@ -9,7 +9,7 @@
             "request": "launch",
             "name": "Launch Program",
             "program": "${workspaceFolder}/saleae_parser.js",
-            "args": ["data files/20180111_1025_solitary-voice_samples.csv"]
+            "args": ["20180111_1845_solitary-voice_60s-to-120s_samples.csv"]
         }
     ]
 }

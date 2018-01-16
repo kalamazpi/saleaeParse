@@ -1,0 +1,26 @@
+[ ' Time [s]',
+  'SuperCapV-Analog',
+  ' Time [s]',
+  'AC_Present-Digital',
+  ' Time [s]',
+  'BB_shutdown-Digital',
+  ' Time [s]',
+  'PIC3.3V-Digital' ]
+ Time [s]
+SuperCapV-Analog
+ Time [s]
+AC_Present-Digital
+ Time [s]
+BB_shutdown-Digital
+ Time [s]
+PIC3.3V-Digital
+cols = 4
+SuperCapV-Analog, AC_Present-Digital, BB_shutdown-Digital, PIC3.3V-Digital
+17.123, 47.121, 29.998, 4.918
+47.217, 48.233, 1.015, 4.918
+163.215, 176.434, 13.219, 4.938
+193.311, 194.326, 1.015, 4.948
+305.947, 335.945, 29.997, 4.948
+336.042, 337.056, 1.015, 4.948
+452.572, 465.266, 12.693, 4.948
+482.666, 483.681, 1.015, 4.958

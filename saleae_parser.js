@@ -108,7 +108,10 @@ rl.on("close", function() {
         if (myArrays[1][i][1] == 0) {
             let ACtime = myArrays[1][i][0];
             // the following is true if this channel ran out of entries.
-            if (ACtime == 0) {
+            // TODO: Find a better way to terminate this operation. The goal is to quit if the column is empty.
+            //       Might need to change the way "" are stored in the parsing above.  The 'i > 0' was
+            //       discovered as a data-dependent behavior in the input file.
+            if ((ACtime == 0) && (i > 0)) {
                 break;
             }
 //            console.log("falling edge of AC_present found at ", ACtime);
